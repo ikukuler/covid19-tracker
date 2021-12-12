@@ -1,19 +1,17 @@
-# covid-tracker
+# COVID-19 tracker
 
-## Project setup
-```
-yarn install
-```
+### Screenshot
 
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
+### Links
 
-### Compiles and minifies for production
-```
-yarn build
-```
+- Live Site URL: [Covid-19 Tracker](https://covid19-tracker-ikukuler.vercel.app/)
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+### Built with
+
+- Vue.js
+- Tailwind
+- Highcharts.js
+
+## Author
+
+- Linkedin - [Igor Kukuler](https://www.linkedin.com/in/igor-kukuler/)
