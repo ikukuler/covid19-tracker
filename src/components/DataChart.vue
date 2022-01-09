@@ -12,22 +12,10 @@ import Loader from "@/components/Loader";
 import moment from "moment";
 import { Chart } from "highcharts-vue";
 
-const formatData = (data) => {
-	return data.map((item) => {
-		return {
-			date: moment(item.Date).valueOf(),
-			deaths: item.Deaths,
-			confirmed: item.Confirmed,
-			recovered: item.Recovered,
-			active: item.Active,
-		};
-	});
-};
-
 const COLORS = {
 	confirmed: "#84bafd",
 	deaths: "#333",
-	active: "#1e40af",
+	cases: "#84bafd",
 	recovered: "#047857",
 };
 
@@ -42,22 +30,17 @@ export default {
 	},
 	data() {
 		return {
-			covidData: [],
+			covidData: {},
 			selectorOptions: [
 				{
-					ID: "confirmed",
-					value: "confirmed",
-					displayName: "Confirmed",
+					ID: "cases",
+					value: "cases",
+					displayName: "Cases",
 				},
 				{
 					ID: "deaths",
 					value: "deaths",
 					displayName: "Deaths",
-				},
-				{
-					ID: "active",
-					value: "active",
-					displayName: "Active",
 				},
 				{
 					ID: "recovered",
@@ -66,8 +49,8 @@ export default {
 				},
 			],
 			selectedState: {
-				value: "confirmed",
-				displayName: "Confirmed",
+				value: "cases",
+				displayName: "Cases",
 				color: COLORS.confirmed,
 			},
 			loading: true,
@@ -76,19 +59,20 @@ export default {
 
 	methods: {
 		async fetchChartData() {
-			const url = `https://api.covid19api.com/dayone/country/${this.slug}`;
+			const url = `https://disease.sh/v3/covid-19/historical/${this.slug}?lastdays=all`;
 			const res = await fetch(url);
-			const data = await res.json();
-			this.covidData = data;
+			const { timeline } = await res.json();
+			this.covidData = timeline;
 			this.loading = false;
-			return data;
 		},
 
 		buildSeries(state) {
-			const formatted = formatData(this.covidData);
-			return formatted.map((item) => {
-				return [item.date, item[state]];
-			});
+			const selectedData = this.covidData[state];
+			let data = [];
+			for (let key in selectedData) {
+				data.push([moment(key).valueOf(), selectedData[key]]);
+			}
+			return data;
 		},
 
 		displaySelected(state) {
@@ -137,7 +121,7 @@ export default {
 		slug: "fetchChartData",
 	},
 
-	mounted() {
+	async mounted() {
 		this.fetchChartData();
 	},
 };

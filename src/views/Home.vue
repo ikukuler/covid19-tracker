@@ -6,15 +6,15 @@
 			name="Country"
 		/>
 
-		<data-title :text="title" :date="date" />
+		<data-title :text="title" :date="date" :population="population" />
 		<data-boxes :stats="stats" />
 		<h2 v-if="slug" class="text-2xl font-bold text-center mt-10">
-			Total cases in {{ stats.Country }} from the first recorded case
+			Total cases in {{ stats.country }} from the first recorded case
 		</h2>
-		<data-chart v-if="slug" :slug="slug" :name="stats.Country" />
+		<data-chart v-if="slug" :slug="slug" :name="stats.country" />
 
 		<button
-			v-if="stats.Country"
+			v-if="stats.country"
 			class="bg-green-700 text-white rounded p-3 mt-10 mb-5 focus:outline-none hover:bg-green-600"
 			@click="clearCountry"
 		>
@@ -39,6 +39,7 @@ export default {
 			loading: true,
 			title: "Global",
 			date: "",
+			population: "",
 			stats: {},
 			countries: [],
 			slug: null,
@@ -47,7 +48,13 @@ export default {
 	},
 	methods: {
 		async fetchCovidData() {
-			const res = await fetch("https://api.covid19api.com/summary");
+			const res = await fetch("https://disease.sh/v3/covid-19/all");
+			const data = await res.json();
+			return data;
+		},
+
+		async fetchCountries() {
+			const res = await fetch("https://disease.sh/v3/covid-19/countries");
 			const data = await res.json();
 			return data;
 		},
@@ -58,15 +65,17 @@ export default {
 				return;
 			}
 			this.stats = country;
-			this.title = country.Country;
-			this.slug = country.Slug;
+			this.title = country.country;
+			this.population = country.population;
+			this.slug = country.countryInfo.iso3;
 		},
 
 		async clearCountry() {
 			this.loading = true;
 			const data = await this.fetchCovidData();
-			this.stats = data.Global;
+			this.stats = data;
 			this.title = "Global";
+			this.population = data.population;
 			this.loading = false;
 			this.slug = null;
 		},
@@ -77,18 +86,20 @@ export default {
 			return this.countries.map((country) => {
 				return {
 					...country,
-					ID: country.ID,
-					displayName: country.Country,
-					value: country.ID,
+					ID: country.countryInfo._id,
+					displayName: country.country,
+					value: country.countryInfo._id,
 				};
 			});
 		},
 	},
 	async mounted() {
-		const { Date, Global, Countries } = await this.fetchCovidData();
-		this.date = Date;
-		this.stats = Global;
-		this.countries = Countries;
+		const data = await this.fetchCovidData();
+		const countryData = await this.fetchCountries();
+		this.date = data.updated;
+		this.stats = data;
+		this.population = data.population;
+		this.countries = countryData;
 		this.loading = false;
 	},
 };

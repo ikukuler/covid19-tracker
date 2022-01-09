@@ -5,8 +5,8 @@
 		</div>
 		<p>
 			API by
-			<a class="text-blue-300" href="https://covid19api.com" target="_blank"
-				>covid19api.com</a
+			<a class="text-blue-300" href="https://disease.sh/" target="_blank"
+				>disease.sh</a
 			>
 		</p>
 	</header>
